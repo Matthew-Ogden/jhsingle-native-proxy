@@ -174,7 +174,8 @@ def run(port, destport, ip, presentation_path, debug, logs, authtype, request_ti
         websocket_max_message_size, command):
 
     if debug:
-        print('Setting debug')
+        ## Added a flush=True option to the debug level statement 10/30
+        print('Setting debug', flush=True)
         app_log.setLevel(logging.DEBUG)
     elif logs:
         app_log.setLevel(logging.INFO)
@@ -196,10 +197,12 @@ def run(port, destport, ip, presentation_path, debug, logs, authtype, request_ti
 
     http_server.listen(port, ip)
 
-    print("Starting jhsingle-native-proxy server on address {} port {}, proxying to port {}".format(ip, port, destport))
-    print("URL Prefix: {}".format(prefix))
-    print("Auth Type: {}".format(authtype))
-    print("Command: {}".format(command))
+
+    # To each of the print statements, added flush to the ouput stream - 10/30
+    print("Starting jhsingle-native-proxy server on address {} port {}, proxying to port {}".format(ip, port, destport), flush=True)
+    print("URL Prefix: {}".format(prefix), flush=True)
+    print("Auth Type: {}".format(authtype), flush=True)
+    print("Command: {}".format(command), flush=True)
 
     if last_activity_interval > 0:
         start_keep_alive(last_activity_interval, force_alive, app.settings)
@@ -208,4 +211,6 @@ def run(port, destport, ip, presentation_path, debug, logs, authtype, request_ti
 
 
 if __name__ == '__main__':
+    ## added a flush = True statement 10/30
+    print("TESTING!!!!!!!!!!!!!", flush=True)
     run()
