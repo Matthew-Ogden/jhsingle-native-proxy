@@ -92,6 +92,7 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
         We proxy it to the backend.
         """
         self.log.debug('jupyter_server_proxy: on_ping: {}'.format(data))
+        print('jupyter_server_proxy: on_ping: {}'.format(data), flush=True)
         self._record_activity()
         if hasattr(self, 'ws'):
             self.ws.protocol.write_ping(data)
@@ -101,6 +102,8 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
         Called when we receive a ping back.
         """
         self.log.debug('jupyter_server_proxy: on_pong: {}'.format(data))
+        print('jupyter_server_proxy: on_pong: {}'.format(data)), flush=True)
+        
 
     def on_close(self):
         """
@@ -237,6 +240,7 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
             # We wanna websocket!
             # jupyterhub/jupyter-server-proxy@36b3214
             self.log.info("we wanna websocket, but we don't define WebSocketProxyHandler")
+            print("we wanna websocket, but we don't define WebSocketProxyHandler", flush=True)
             self.set_status(500)
 
         body = self.request.body
@@ -449,6 +453,8 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
             self.set_status(403)
             self.log.info("Host '{host}' is not whitelisted. "
                           "See https://jupyter-server-proxy.readthedocs.io/en/latest/arbitrary-ports-hosts.html for info.".format(host=host))
+            print("Host '{host}' is not whitelisted. "
+                          "See https://jupyter-server-proxy.readthedocs.io/en/latest/arbitrary-ports-hosts.html for info.".format(host=host), flush=True)
             self.close()
             return
 
@@ -487,6 +493,7 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
             self.ping(data)
 
         self.log.info('Trying to establish websocket connection to {}'.format(client_uri))
+        print('Trying to establish websocket connection to {}'.format(client_uri), flush=True)
         self._record_activity()
         request = httpclient.HTTPRequest(url=client_uri, headers=headers)
         self.ws = await pingable_ws_connect(request=request,
@@ -495,6 +502,7 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
                                             subprotocols=self.subprotocols)
         self._record_activity()
         self.log.info('Websocket connection established to {}'.format(client_uri))
+        print('Websocket connection established to {}'.format(client_uri),flush=True)
 
         # We really need the underlying process websocket AND the one between client and proxy
         # to be opened at the same time to avoid messages being proxied before one end is open.
@@ -527,6 +535,7 @@ class ProxyHandler(HubOAuthenticated, WebSocketHandlerMixin):
         self.subprotocols = subprotocols
         if isinstance(subprotocols, list) and subprotocols:
             self.log.info('Client sent subprotocols: {}'.format(subprotocols))
+            print('Client sent subprotocols: {}'.format(subprotocols), flush=True)
             return subprotocols[0]
         return super().select_subprotocol(subprotocols)
 
@@ -708,9 +717,11 @@ class SuperviseAndProxyHandler(LocalProxyHandler):
                     # We only care if we get back *any* response, not just 200
                     # If there's an error response, that can be shown directly to the user
                     self.log.debug('Got code {} back from {}'.format(resp.status, url))
+                    print(('Got code {} back from {}'.format(resp.status, url),flush=True)
                     return True
             except aiohttp.ClientConnectionError:
                 self.log.debug('Connection to {} refused'.format(url))
+                print('Connection to {} refused'.format(url),flush=True)
                 return False
 
     async def ensure_process(self):
@@ -734,6 +745,7 @@ class SuperviseAndProxyHandler(LocalProxyHandler):
                 timeout = self.get_timeout()
 
                 self.log.info(cmd)
+                print(cmd, flush=True)
 
                 proc = SupervisedProcess(self.name, *cmd, env=server_env, ready_func=self._http_ready_func, ready_timeout=timeout, log=self.log,
                                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -754,6 +766,7 @@ class SuperviseAndProxyHandler(LocalProxyHandler):
                         if stderr:
                             self.stderr_str = str(stderr.decode("utf-8"))
                             self.log.info('Process {} failed with stderr: {}'.format(self.name, self.stderr_str))
+                            print('Process {} failed with stderr: {}'.format(self.name, self.stderr_str),flush=True)
 
                         if stdout:
                             self.stdout_str = str(stdout.decode("utf-8"))
